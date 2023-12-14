@@ -158,7 +158,7 @@ class E_GCL(nn.Module):
     def __init__(self, input_nf, output_nf, hidden_edge_nf, hidden_node_nf, hidden_coord_nf,edges_in_d=0,
                 nodes_att_dim=0, act_fn=nn.ReLU(),recurrent=True, coords_weight=1.0,
                 attention=False, clamp=False, norm_diff=False, tanh=False,
-                num_vectors_in=1, num_vectors_out=1, last_layer=False):
+                num_vectors_in=1, num_vectors_out=1, last_layer=False, wl_dim=32):
         super(E_GCL, self).__init__()
         input_edge = input_nf * 2
         self.coords_weight = coords_weight
@@ -173,7 +173,7 @@ class E_GCL(nn.Module):
 
 
         self.edge_mlp = nn.Sequential(
-            nn.Linear(input_edge + num_vectors_in + edges_in_d + hidden_edge_nf, hidden_edge_nf),
+            nn.Linear(input_edge + num_vectors_in + edges_in_d + wl_dim, hidden_edge_nf),
             act_fn,
             nn.Linear(hidden_edge_nf, hidden_edge_nf),
             act_fn)
@@ -284,18 +284,18 @@ class E_GCL_vel(E_GCL):
 
     def __init__(self, input_nf, output_nf, hidden_edge_nf, hidden_node_nf, hidden_coord_nf,
                  edges_in_d=0, nodes_att_dim=0, act_fn=nn.ReLU(), recurrent=True, coords_weight=1.0,
-                 attention=False, norm_diff=False, tanh=False, num_vectors_in=1, num_vectors_out=1, last_layer=False, color_steps=1, ef_dim=3):
+                 attention=False, norm_diff=False, tanh=False, num_vectors_in=1, num_vectors_out=1, last_layer=False, color_steps=1, ef_dim=3, wl_dim=32):
         E_GCL.__init__(self, input_nf, output_nf, hidden_edge_nf, hidden_node_nf, hidden_coord_nf,
                        edges_in_d=edges_in_d, nodes_att_dim=nodes_att_dim, act_fn=act_fn, recurrent=recurrent,
                        coords_weight=coords_weight, attention=attention, norm_diff=norm_diff, tanh=tanh,
-                       num_vectors_in=num_vectors_in, num_vectors_out=num_vectors_out, last_layer=last_layer)
+                       num_vectors_in=num_vectors_in, num_vectors_out=num_vectors_out, last_layer=last_layer, wl_dim=wl_dim)
         self.multi_channel_in = (num_vectors_in==2)
         self.norm_diff = norm_diff
         self.coord_mlp_vel = nn.Sequential(
             nn.Linear(input_nf, hidden_coord_nf),
             act_fn,
             nn.Linear(hidden_coord_nf, num_vectors_in * num_vectors_out))
-        hidden_nf = hidden_edge_nf
+        hidden_nf = hidden_nf
         self.edge_mlp_feat = nn.Sequential(
                     nn.Linear( input_nf*2 + 1 + hidden_nf+edges_in_d, hidden_nf),
                     act_fn,
@@ -439,11 +439,11 @@ class E_GCL_vel_hidden(E_GCL):
 
     def __init__(self, input_nf, output_nf, hidden_edge_nf, hidden_node_nf, hidden_coord_nf,
                  edges_in_d=0, nodes_att_dim=0, act_fn=nn.ReLU(), recurrent=True, coords_weight=1.0,
-                 attention=False, norm_diff=False, tanh=False, num_vectors_in=1, num_vectors_out=1, last_layer=False, color_steps=1, ef_dim=3):
+                 attention=False, norm_diff=False, tanh=False, num_vectors_in=1, num_vectors_out=1, last_layer=False, color_steps=1, ef_dim=3, wl_dim=32):
         E_GCL.__init__(self, input_nf, output_nf, hidden_edge_nf, hidden_node_nf, hidden_coord_nf,
                        edges_in_d=edges_in_d, nodes_att_dim=nodes_att_dim, act_fn=act_fn, recurrent=recurrent,
                        coords_weight=coords_weight, attention=attention, norm_diff=norm_diff, tanh=tanh,
-                       num_vectors_in=num_vectors_in, num_vectors_out=num_vectors_out, last_layer=last_layer)
+                       num_vectors_in=num_vectors_in, num_vectors_out=num_vectors_out, last_layer=last_layer, wl_dim=wl_dim)
         self.multi_channel_in = (num_vectors_in==2)
         self.three_channel_in = (num_vectors_in==3)
         self.norm_diff = norm_diff
@@ -451,7 +451,7 @@ class E_GCL_vel_hidden(E_GCL):
             nn.Linear(input_nf, hidden_coord_nf),
             act_fn,
             nn.Linear(hidden_coord_nf, num_vectors_in * num_vectors_out))
-        hidden_nf = hidden_edge_nf
+        hidden_nf = wl_dim
         self.edge_mlp_feat = nn.Sequential(
                     nn.Linear( input_nf*2 + 1 + hidden_nf+edges_in_d, hidden_nf),
                     act_fn,

@@ -71,7 +71,8 @@ parser.add_argument('--color_steps', type=int, default=1, metavar='N',
                     help='hidden features for edge mlp and messages')
 parser.add_argument('--ef_dim', type=int, default=3, metavar='N',
                     help='hidden features for node mlp')
-
+parser.add_argument('--wl_dim', type=int, default=32, metavar='N',
+                    help='hidden features for node mlp')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -125,7 +126,7 @@ def main():
     elif args.model == 'egnn_vel_hidden':
         model = EGNN_vel_hidden(in_node_nf=1, in_edge_nf=2, hidden_edge_nf=args.nf_edge, 
                          hidden_node_nf=args.nf_node, hidden_coord_nf=args.nf_coord,device=device, n_layers=args.n_layers,
-                         recurrent=True, norm_diff=args.norm_diff, tanh=args.tanh, num_vectors=args.num_vectors, update_vel=args.update_vel, color_steps=args.color_steps, ef_dim=args.ef_dim)
+                         recurrent=True, norm_diff=args.norm_diff, tanh=args.tanh, num_vectors=args.num_vectors, update_vel=args.update_vel, color_steps=args.color_steps, ef_dim=args.ef_dim, wl_dim=args.wl_dim)
     elif args.model == 'baseline':
         model = Baseline()
     elif args.model == 'linear_vel':
